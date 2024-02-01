@@ -1,17 +1,17 @@
-import { useEffect, FormEventHandler } from 'react';
-import Checkbox from '@/Components/Checkbox';
-import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import { Checkbox } from '@/Components/ui/checkbox';
+import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { FormEventHandler, useEffect } from 'react';
 
-export default function Login({ status, canResetPassword }: { status?: string, canResetPassword: boolean }) {
+export default function Login({ status, canResetPassword }: { status?: string; canResetPassword: boolean }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
-        remember: false,
+        remember: false
     });
 
     useEffect(() => {
@@ -68,11 +68,7 @@ export default function Login({ status, canResetPassword }: { status?: string, c
 
                 <div className="block mt-4">
                     <label className="flex items-center">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) => setData('remember', e.target.checked)}
-                        />
+                        <Checkbox name="remember" checked={data.remember} onCheckedChange={() => setData('remember', !data.remember)} />
                         <span className="ms-2 text-sm text-gray-600">Remember me</span>
                     </label>
                 </div>

@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
+use Tests\TestCaseWithSeed;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,7 +16,11 @@ use Tests\TestCase;
 |
 */
 
-uses(TestCase::class, RefreshDatabase::class)->in('Feature');
+uses(
+    TestCaseWithSeed::class
+    // TestCase::class,
+    // RefreshDatabase::class
+)->in('Feature');
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +48,11 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
-{
-    // ..
-}
+// function something()
+// {
+//     dd('xxx');
+//     $app = require_once __DIR__ . '../../bootstrap/app.php';
+//     $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+//     $kernel->bootstrap();
+//     Artisan::call('db:seed');
+// }
