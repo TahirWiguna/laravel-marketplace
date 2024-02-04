@@ -94,22 +94,23 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Role $role)
     {
         if (!$this->permission['view']) {
             return abort(403);
         }
+
         return Inertia::render('Auth/Role/RoleForm', [
             'permissions' => $this->permission,
             'type' => 'show',
-            'role_data' => Role::findById($id),
+            'role_data' => $role,
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Role $role)
     {
         if (!$this->permission['update']) {
             return abort(403);
@@ -117,40 +118,28 @@ class RoleController extends Controller
         return Inertia::render('Auth/Role/RoleForm', [
             'permissions' => $this->permission,
             'type' => 'edit',
-            'role_data' => Role::findById($id),
+            'role_data' => $role,
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(RoleRequest $request, string $id): RoleResource
+    public function update(Role $role, RoleRequest $request): RoleResource
     {
         if (!$this->permission['update']) {
             return abort(403);
         }
         $data = $request->validated();
-        $role = Role::find($id);
-        if (!$role) {
-            throw new HttpResponseException(
-                response(
-                    [
-                        'errors' => [
-                            'role' => ['Role not found'],
-                        ],
-                    ],
-                    404
-                )
-            );
-        }
         if (
             Role::where('name', $data['name'])
-                ->whereNot('id', $id)
+                ->whereNot('id', $role->id)
                 ->first()
         ) {
             throw new HttpResponseException(
                 response(
                     [
+                        'message' => 'Form Validation Error',
                         'errors' => [
                             'name' => ['Role name has been used'],
                         ],
@@ -171,23 +160,10 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id): bool
+    public function destroy(Role $role): bool
     {
         if (!$this->permission['delete']) {
             return abort(403);
-        }
-        $role = Role::findById($id);
-        if (!$role) {
-            throw new HttpResponseException(
-                response(
-                    [
-                        'errors' => [
-                            'role' => ['Role not found'],
-                        ],
-                    ],
-                    404
-                )
-            );
         }
 
         return $role->delete();

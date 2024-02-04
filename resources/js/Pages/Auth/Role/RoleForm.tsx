@@ -4,10 +4,10 @@ import Container from '@/Components/Container';
 import FormError from '@/Components/FormError';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/Components/ui/form';
 import { Input } from '@/Components/ui/input';
 import { toast } from '@/Components/ui/use-toast';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { PageProps } from '@/types';
 import { FormValidation } from '@/types/form-validation';
 import { PermissionType } from '@/types/permission';
@@ -78,25 +78,18 @@ const Create = ({ auth, type, role_data, permissions }: Params) => {
                 }
             });
         } catch (error) {
-            if (axios.isAxiosError<FormValidation>(error)) {
-                if (error.response?.data.errors) {
-                    setFormError(error.response?.data || null);
-                    toast({
-                        title: error.response?.data.message || 'Whoops! Something went wrong.',
-                        variant: 'destructive'
-                    });
-                } else {
-                    toast({
-                        title: 'Whoops! Something went wrong.',
-                        variant: 'destructive'
-                    });
-                }
-            } else {
+            if (!axios.isAxiosError<FormValidation>(error) || !error.response?.data.errors) {
                 toast({
                     title: 'Whoops! Something went wrong.',
                     variant: 'destructive'
                 });
+                return;
             }
+
+            toast({
+                title: error.response?.data.message || 'Whoops! Something went wrong.',
+                variant: 'destructive'
+            });
             setLoading(false);
         }
     }

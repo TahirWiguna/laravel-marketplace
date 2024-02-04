@@ -27,17 +27,19 @@ class RoleRequest extends FormRequest
     {
         return [
             'name' => ['required', 'max:255', 'min:1'],
-            'description' => ['nullable', 'max:255'],
         ];
     }
 
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(
-            response([
-                'message' => 'Form Validation Error',
-                'errors' => $validator->getMessageBag(),
-            ])
+            response(
+                [
+                    'message' => 'Form Validation Error',
+                    'errors' => $validator->getMessageBag(),
+                ],
+                400
+            )
         );
     }
 }
