@@ -3,31 +3,30 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RolRoleRequest;
 use App\Http\Requests\RoleRequest;
 use App\Http\Resources\RoleResource;
+use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Date;
 use Inertia\Inertia;
 
 class RoleController extends Controller
 {
-    private $permission;
+    private $permission = [];
 
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            // prettier-ignore
+            $user = Auth::user();
             $this->permission = [
-                "list" => auth()->user()->can('List roles'),
-                "view" => auth()->user()->can('View role'),
-                "create" => auth()->user()->can('Create role'),
-                "update" => auth()->user()->can('Update role'),
-                "delete" => auth()->user()->can('Delete role'),
+                'list' => $user->can('Role Lists'),
+                'view' => $user->can('Role Views'),
+                'create' => $user->can('Role Creates'),
+                'update' => $user->can('Role Updates'),
+                'delete' => $user->can('Role Deletes'),
             ];
             return $next($request);
         });
@@ -55,9 +54,11 @@ class RoleController extends Controller
         if (!$this->permission['create']) {
             return abort(403);
         }
+
         return Inertia::render('Auth/Role/RoleForm', [
             'permissions' => $this->permission,
             'type' => 'create',
+            'permission_data' => Permission::get(),
         ]);
     }
 
@@ -70,7 +71,6 @@ class RoleController extends Controller
             return abort(403);
         }
         $data = $request->validated();
-
         if (Role::where('name', $data['name'])->count() > 0) {
             throw new HttpResponseException(
                 response(
@@ -87,8 +87,12 @@ class RoleController extends Controller
 
         $data['created_at'] = date('Y-m-d H:i:s');
 
-        $create = Role::create($data);
-        return (new RoleResource($create))->response()->setStatusCode(201);
+        $role = Role::create($data);
+        if (isset($data['permissions'])) {
+            $role->permissions()->sync($data['permissions']);
+        }
+
+        return (new RoleResource($role))->response()->setStatusCode(201);
     }
 
     /**
@@ -99,11 +103,14 @@ class RoleController extends Controller
         if (!$this->permission['view']) {
             return abort(403);
         }
+        $role = $role->load('permissions')->toArray();
+        $role['permissions'] = array_column($role['permissions'], 'id');
 
         return Inertia::render('Auth/Role/RoleForm', [
             'permissions' => $this->permission,
             'type' => 'show',
             'role_data' => $role,
+            'permission_data' => Permission::get(),
         ]);
     }
 
@@ -115,10 +122,15 @@ class RoleController extends Controller
         if (!$this->permission['update']) {
             return abort(403);
         }
+
+        $role = $role->load('permissions')->toArray();
+        $role['permissions'] = array_column($role['permissions'], 'id');
+
         return Inertia::render('Auth/Role/RoleForm', [
             'permissions' => $this->permission,
             'type' => 'edit',
             'role_data' => $role,
+            'permission_data' => Permission::get(),
         ]);
     }
 
@@ -152,6 +164,9 @@ class RoleController extends Controller
         $data['updated_at'] = date('Y-m-d H:i:s');
 
         $role->update($data);
+        if (isset($data['permissions'])) {
+            $role->permissions()->sync($data['permissions']);
+        }
         $role->refresh();
 
         return new RoleResource($role);

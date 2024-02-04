@@ -12,11 +12,9 @@ use Illuminate\Support\Str;
 
 class PermissionSeeder extends Seeder
 {
-    private array $modules = ['permission', 'role'];
+    private array $modules = ['Permission', 'Role'];
 
-    private array $pluralActions = ['List'];
-
-    private array $singularActions = ['View', 'Create', 'Update', 'Delete'];
+    private array $actions = ['List', 'View', 'Create', 'Update', 'Delete'];
 
     private array $extraPermissions = [];
 
@@ -31,16 +29,9 @@ class PermissionSeeder extends Seeder
     {
         // Create profiles
         foreach ($this->modules as $module) {
-            $plural = Str::plural($module);
-            $singular = $module;
-            foreach ($this->pluralActions as $action) {
+            foreach ($this->actions as $action) {
                 Permission::firstOrCreate([
-                    'name' => $action . ' ' . $plural,
-                ]);
-            }
-            foreach ($this->singularActions as $action) {
-                Permission::firstOrCreate([
-                    'name' => $action . ' ' . $singular,
+                    'name' => $module . ' ' . Str::plural($action),
                 ]);
             }
         }

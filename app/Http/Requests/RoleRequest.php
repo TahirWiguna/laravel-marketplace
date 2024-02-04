@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use Auth;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Request;
 
 class RoleRequest extends FormRequest
 {
@@ -13,9 +15,13 @@ class RoleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()
-            ->user()
-            ->can('Create role');
+        $user = Auth::user();
+        $route = Request::route()->getName();
+        if ($route === 'role.create') {
+            return $user->can('Role Creates');
+        } else {
+            return $user->can('Role Updates');
+        }
     }
 
     /**
@@ -27,6 +33,7 @@ class RoleRequest extends FormRequest
     {
         return [
             'name' => ['required', 'max:255', 'min:1'],
+            'permissions' => ['nullable', 'array'],
         ];
     }
 

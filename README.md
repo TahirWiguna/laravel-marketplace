@@ -12,17 +12,31 @@ This app is for learning purpose only made by myself.
     npm install
     ```
 
-2. Run the test first to check if app is working perfectly
+2. Generate IDE Configuration (Optional)
+
+    ```sh
+    php artisan ide-helper:generate
+    ```
+
+3. Generate ziggy types, Run this command every time you create new routes
+
+    ```sh
+    php artisan ziggy:generate --types
+    ```
+
+4. Run the test first to check if app is working perfectly
 
     ```sh
     php artisan test
     ```
 
-3. Run the app
+5. Run the app
+
     ```sh
     php artisan serve
     ```
-4. Run this so inertia can change the site realtime
+
+6. Run this so inertia.js can change the site realtime
     ```sh
     npm run dev
     ```
