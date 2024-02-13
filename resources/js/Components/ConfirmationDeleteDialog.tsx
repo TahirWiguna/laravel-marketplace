@@ -9,10 +9,11 @@ interface Params {
     sample_data?: string;
     loading: boolean;
     children?: ReactNode;
+    openState?: [open: boolean, setOpen: React.Dispatch<React.SetStateAction<boolean>>];
 }
 
-const ConfirmationDeleteDialog = ({ action, sample_data, loading, children }: Params) => {
-    const [open, setOpen] = useState(false);
+const ConfirmationDeleteDialog = ({ action, sample_data, loading, children, openState }: Params) => {
+    const [open, setOpen] = openState || useState(false);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>

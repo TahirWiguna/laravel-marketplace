@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\PermissionController;
 use App\Http\Controllers\Auth\RoleController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -35,6 +36,10 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('role', RoleController::class);
         Route::delete('roles', [RoleController::class, 'destroys'])->name('role.destroys');
+
+        Route::resource('permission', PermissionController::class);
+        Route::post('permission/datatables', [PermissionController::class, 'datatables'])->name('permission.datatables');
+        Route::delete('permissions', [PermissionController::class, 'destroys'])->name('permission.destroys');
     });
 
 Route::middleware('auth')->group(function () {

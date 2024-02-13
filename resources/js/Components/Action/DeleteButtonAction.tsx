@@ -1,8 +1,7 @@
 import { Button } from '@/Components/ui/button';
 import { FormValidation } from '@/types/form-validation';
-import { router } from '@inertiajs/react';
 import axios from 'axios';
-import { CheckIcon, Loader2, Trash2, XCircle } from 'lucide-react';
+import { Loader2, Trash2, XCircle } from 'lucide-react';
 import { ReactNode, useState } from 'react';
 
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
@@ -13,9 +12,10 @@ interface Params {
     url: string;
     sample_data?: string;
     children?: ReactNode;
+    callback?: () => void;
 }
 
-const DeleteButtonAction = ({ url, sample_data, children }: Params) => {
+const DeleteButtonAction = ({ url, sample_data, children, callback }: Params) => {
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const onDelete = async () => {
@@ -24,20 +24,24 @@ const DeleteButtonAction = ({ url, sample_data, children }: Params) => {
         try {
             await axios.delete(url);
             setOpen(false);
-            router.visit(route('role.index'), {
-                onFinish: () => {
-                    toast({
-                        action: (
-                            <div className="flex items-center w-full">
-                                <CheckIcon className="mr-2" />
-                                <span>{sample_data || 'Data'} has been deleted!</span>
-                            </div>
-                        ),
-                        variant: 'success',
-                        duration: 3000
-                    });
-                }
-            });
+            if (callback) {
+                callback();
+            } else {
+                // router.visit(route('role.index'), {
+                //     onFinish: () => {
+                //         toast({
+                //             action: (
+                //                 <div className="flex items-center w-full">
+                //                     <CheckIcon className="mr-2" />
+                //                     <span>{sample_data ?? 'Data'} has been deleted!</span>
+                //                 </div>
+                //             ),
+                //             variant: 'success',
+                //             duration: 3000
+                //         });
+                //     }
+                // });
+            }
         } catch (error) {
             if (!axios.isAxiosError<FormValidation>(error) || !error.response?.data.errors) {
                 toast({
@@ -61,9 +65,7 @@ const DeleteButtonAction = ({ url, sample_data, children }: Params) => {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild onClick={() => setOpen(true)}>
-                        {children ? (
-                            children
-                        ) : (
+                        {children ?? (
                             <Button variant="link" size="sm" className="text-destructive">
                                 <Trash2 />
                                 <span className="ml-2">Delete</span>

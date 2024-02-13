@@ -20,6 +20,11 @@ export default function Authenticated({ user, header, children }: PropsWithChild
             label: 'Role',
             href: route('role.index'),
             active: route().current('role.index')
+        },
+        {
+            label: 'Permission',
+            href: route('permission.index'),
+            active: route().current('permission.index')
         }
     ];
 
