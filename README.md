@@ -1,10 +1,19 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-# Laravel Marketplace
+# Laravel Starter Pack
 
-This app is for learning purpose only made by myself.
+Laravel + React Inertia JS starter pack. include role permission feature and datatable client side and serer side.
 
-## Run the following code to run the app
+## Feature
+
+-   Laravel 10
+-   Inertia with React JS
+-   Breeze auth
+-   Role & Permission using spatie
+-   Datatable Client Side
+-   Datatable Server Side
+
+## Run the following code to run the application
 
 1. Install dependencies
 
@@ -12,13 +21,13 @@ This app is for learning purpose only made by myself.
     npm install
     ```
 
-2. Generate IDE Configuration (Optional)
+2. Generate IDE Configuration (optional)
 
     ```sh
     php artisan ide-helper:generate
     ```
 
-3. Generate ziggy types, Run this command every time you create new routes
+3. Generate ziggy types, Run this command every time you create new routes (optional)
 
     ```sh
     php artisan ziggy:generate --types
@@ -37,8 +46,12 @@ This app is for learning purpose only made by myself.
     ```
 
 6. Run this so inertia.js can change the site realtime
+
     ```sh
     npm run dev
     ```
 
-## Change the environment
+7. Run this if you want to go production
+    ```sh
+    npm run build
+    ```
