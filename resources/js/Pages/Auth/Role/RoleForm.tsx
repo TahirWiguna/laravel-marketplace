@@ -46,7 +46,7 @@ interface Params extends PageProps {
     permission_data: PermissionData[];
 }
 
-const Create = ({ auth, type, role_data, permissions, permission_data }: Params) => {
+const RoleForm = ({ auth, type, role_data, permissions, permission_data }: Params) => {
     if (role_data === undefined) {
         role_data = defaultValues;
     }
@@ -250,4 +250,4 @@ const Create = ({ auth, type, role_data, permissions, permission_data }: Params)
     );
 };
 
-export default Create;
+export default RoleForm;
