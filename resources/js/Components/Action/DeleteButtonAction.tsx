@@ -1,7 +1,7 @@
 import { Button } from '@/Components/ui/button';
 import { FormValidation } from '@/types/form-validation';
 import axios from 'axios';
-import { Loader2, Trash2, XCircle } from 'lucide-react';
+import { CheckIcon, Loader2, Trash2, XCircle } from 'lucide-react';
 import { ReactNode, useState } from 'react';
 
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
@@ -27,20 +27,16 @@ const DeleteButtonAction = ({ url, sample_data, children, callback }: Params) =>
             if (callback) {
                 callback();
             } else {
-                // router.visit(route('role.index'), {
-                //     onFinish: () => {
-                //         toast({
-                //             action: (
-                //                 <div className="flex items-center w-full">
-                //                     <CheckIcon className="mr-2" />
-                //                     <span>{sample_data ?? 'Data'} has been deleted!</span>
-                //                 </div>
-                //             ),
-                //             variant: 'success',
-                //             duration: 3000
-                //         });
-                //     }
-                // });
+                toast({
+                    action: (
+                        <div className="flex items-center w-full">
+                            <CheckIcon className="mr-2" />
+                            <span>Delete success!</span>
+                        </div>
+                    ),
+                    variant: 'success',
+                    duration: 3000
+                });
             }
         } catch (error) {
             if (!axios.isAxiosError<FormValidation>(error) || !error.response?.data.errors) {

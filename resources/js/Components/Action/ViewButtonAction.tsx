@@ -15,9 +15,7 @@ const ViewButtonAction = ({ url, children }: Params) => {
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    {children ? (
-                        children
-                    ) : (
+                    {children ?? (
                         <Button variant="link" size="sm">
                             <Link href={url} className="flex items-center text-primary">
                                 <Eye />

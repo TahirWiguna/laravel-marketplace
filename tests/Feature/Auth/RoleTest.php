@@ -163,11 +163,6 @@ test('update role not found', function () {
     $response->assertStatus(404);
 });
 
-// test('create role request update', function () {
-//     $response = $this->actingAs($this->user)->put(route('role.update'));
-//     $response->assertStatus(400)->assertJsonStructure(['message', 'errors']);
-// });
-
 test('update role success', function () {
     $role = Role::create($this->post);
     $this->actingAs($this->user)

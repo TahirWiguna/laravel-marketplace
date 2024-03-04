@@ -16,9 +16,9 @@ import { RefreshCcw } from 'lucide-react';
 import moment from 'moment';
 import { useRef } from 'react';
 
-import { Permission } from './permission';
+import User from './user';
 
-const ColumnTable: ColumnDef<Permission>[] = [
+const ColumnTable: ColumnDef<User>[] = [
     {
         id: 'select',
         header: ({ table }) => (
@@ -48,9 +48,9 @@ const ColumnTable: ColumnDef<Permission>[] = [
             const value = props.getValue() as string;
             return (
                 <div className="divide-x">
-                    <DeleteButtonAction url={route('permission.destroy', value)} />
-                    <EditButtonAction url={route('permission.edit', value)} />
-                    <ViewButtonAction url={route('permission.show', value)} />
+                    <DeleteButtonAction url={route('user.destroy', value)} />
+                    <EditButtonAction url={route('user.edit', value)} />
+                    <ViewButtonAction url={route('user.show', value)} />
                 </div>
             );
         },
@@ -59,6 +59,19 @@ const ColumnTable: ColumnDef<Permission>[] = [
     {
         accessorKey: 'name',
         header: 'Name'
+    },
+    {
+        accessorKey: 'email',
+        header: 'Email'
+    },
+    {
+        accessorKey: 'email_verified_at',
+        header: 'Email Verified At',
+        cell(props) {
+            const date = props.getValue() as string;
+            return moment(date).format('LLL');
+        },
+        enableColumnFilter: false
     },
     {
         accessorKey: 'created_at',
@@ -80,7 +93,7 @@ const ColumnTable: ColumnDef<Permission>[] = [
     }
 ];
 
-export default function PermissionList({ auth, permissions }: PageProps<{ permission_data: Permission[]; permissions: PermissionType }>) {
+export default function UserList({ auth, permissions }: PageProps<{ user_data: User[]; permissions: PermissionType }>) {
     const dataTableServerRef = useRef<DataTableServerRef>(null);
     const refreshTable = () => {
         if (dataTableServerRef.current) {
@@ -90,11 +103,11 @@ export default function PermissionList({ auth, permissions }: PageProps<{ permis
 
     return (
         <AuthenticatedLayout user={auth.user}>
-            <Head title="List Permission" />
+            <Head title="List User" />
             <Card>
                 <CardHeader>
                     <div className="pb-4 border-b">
-                        <h2 className="text-3xl font-bold tracking-tight capitalize">Permission List</h2>
+                        <h2 className="text-3xl font-bold tracking-tight capitalize">User List</h2>
                         <p className="text-base text-muted-foreground ">Take a Look at the List! Let&apos;s Dive Right In!</p>
                     </div>
                 </CardHeader>
@@ -102,7 +115,7 @@ export default function PermissionList({ auth, permissions }: PageProps<{ permis
                     <div className="flex justify-between space-x-2 mb-4">
                         <div className="flex justify-between space-x-2">
                             {permissions.create && (
-                                <Link href={route('permission.create')}>
+                                <Link href={route('user.create')}>
                                     <Button variant="default" size="sm" className="h-8 border-dashed">
                                         Add Data
                                     </Button>
@@ -117,8 +130,8 @@ export default function PermissionList({ auth, permissions }: PageProps<{ permis
                         ref={dataTableServerRef}
                         columns={ColumnTable}
                         foreignKey="id"
-                        routes={route('permission.datatables')}
-                        deleteBulkRoute={route('permission.destroys')}
+                        routes={route('user.datatables')}
+                        deleteBulkRoute={route('user.destroys')}
                     />
                 </CardContent>
             </Card>

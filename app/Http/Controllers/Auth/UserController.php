@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PermissionRequest;
-use App\Http\Resources\PermissionResource;
-use App\Models\Permission;
+use App\Http\Requests\UserRequest;
+use App\Http\Resources\UserResource;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Yajra\DataTables\Facades\DataTables;
 
-class PermissionController extends Controller
+class UserController extends Controller
 {
     private $permission = [];
 
@@ -23,11 +24,11 @@ class PermissionController extends Controller
         $this->middleware(function ($request, $next) {
             $user = Auth::user();
             $this->permission = [
-                'list' => $user->can('Permission Lists'),
-                'view' => $user->can('Permission Views'),
-                'create' => $user->can('Permission Creates'),
-                'update' => $user->can('Permission Updates'),
-                'delete' => $user->can('Permission Deletes'),
+                'list' => $user->can('User Lists'),
+                'view' => $user->can('User Views'),
+                'create' => $user->can('User Creates'),
+                'update' => $user->can('User Updates'),
+                'delete' => $user->can('User Deletes'),
             ];
             return $next($request);
         });
@@ -41,8 +42,9 @@ class PermissionController extends Controller
         if (!$this->permission['list']) {
             return abort(403);
         }
+        // dd('hi', date('H:i:s.u'));
 
-        return Inertia::render('Auth/Permission/PermissionList', [
+        return Inertia::render('Auth/User/UserList', [
             'permissions' => $this->permission,
         ]);
     }
@@ -56,29 +58,43 @@ class PermissionController extends Controller
             return abort(403);
         }
 
-        return Inertia::render('Auth/Permission/PermissionForm', [
+        return Inertia::render('Auth/User/UserForm', [
             'permissions' => $this->permission,
             'type' => 'create',
-            'permission_data' => Permission::get(),
+            'role_data' => Role::get(),
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PermissionRequest $request): JsonResponse
+    public function store(UserRequest $request): JsonResponse
     {
         if (!$this->permission['create']) {
             return abort(403);
         }
         $data = $request->validated();
-        if (Permission::where('name', $data['name'])->count() > 0) {
+        if (User::where('name', $data['name'])->count() > 0) {
             throw new HttpResponseException(
                 response(
                     [
                         'message' => 'Form Validation Error',
                         'errors' => [
-                            'name' => ['Permission name has been used'],
+                            'name' => ['User name has been used'],
+                        ],
+                    ],
+                    400
+                )
+            );
+        }
+
+        if (User::where('email', $data['email'])->count() > 0) {
+            throw new HttpResponseException(
+                response(
+                    [
+                        'message' => 'Form Validation Error',
+                        'errors' => [
+                            'email' => ['Email has been used'],
                         ],
                     ],
                     400
@@ -88,58 +104,64 @@ class PermissionController extends Controller
 
         $data['created_at'] = date('Y-m-d H:i:s');
 
-        $permission = Permission::create($data);
-        if (isset($data['permissions'])) {
-            $permission->permissions()->sync($data['permissions']);
-        }
+        $user = User::create($data);
+        $user->assignRole($data['roles']);
 
-        return (new PermissionResource($permission))->response()->setStatusCode(201);
+        return (new UserResource($user))->response()->setStatusCode(201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Permission $permission)
+    public function show(User $user)
     {
         if (!$this->permission['view']) {
             return abort(403);
         }
 
-        return Inertia::render('Auth/Permission/PermissionForm', [
+        $user = $user->load('roles')->toArray();
+        $user['roles'] = array_column($user['roles'], 'id');
+
+        return Inertia::render('Auth/User/UserForm', [
             'permissions' => $this->permission,
             'type' => 'show',
-            'form_data' => $permission,
+            'form_data' => $user,
+            'role_data' => Role::get(),
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Permission $permission)
+    public function edit(User $user)
     {
         if (!$this->permission['update']) {
             return abort(403);
         }
 
-        return Inertia::render('Auth/Permission/PermissionForm', [
+        $user = $user->load('roles')->toArray();
+        $user['roles'] = array_column($user['roles'], 'id');
+
+        return Inertia::render('Auth/User/UserForm', [
             'permissions' => $this->permission,
             'type' => 'edit',
-            'form_data' => $permission,
+            'form_data' => $user,
+            'role_data' => Role::get(),
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Permission $permission, PermissionRequest $request): PermissionResource
+    public function update(User $user, UserRequest $request): UserResource
     {
         if (!$this->permission['update']) {
             return abort(403);
         }
         $data = $request->validated();
         if (
-            Permission::where('name', $data['name'])
-                ->whereNot('id', $permission->id)
+            User::where('name', $data['name'])
+                ->whereNot('id', $user->id)
                 ->first()
         ) {
             throw new HttpResponseException(
@@ -147,7 +169,7 @@ class PermissionController extends Controller
                     [
                         'message' => 'Form Validation Error',
                         'errors' => [
-                            'name' => ['Permission name has been used'],
+                            'name' => ['User name has been used'],
                         ],
                     ],
                     400
@@ -157,25 +179,25 @@ class PermissionController extends Controller
 
         $data['updated_at'] = date('Y-m-d H:i:s');
 
-        $permission->update($data);
-        if (isset($data['permissions'])) {
-            $permission->permissions()->sync($data['permissions']);
+        $user->update($data);
+        if (isset($data['users'])) {
+            $user->users()->sync($data['users']);
         }
-        $permission->refresh();
+        $user->refresh();
 
-        return new PermissionResource($permission);
+        return new UserResource($user);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Permission $permission): bool
+    public function destroy(User $user): bool
     {
         if (!$this->permission['delete']) {
             return abort(403);
         }
 
-        return $permission->delete();
+        return $user->delete();
     }
 
     public function destroys(Request $request): bool
@@ -186,7 +208,7 @@ class PermissionController extends Controller
         $data = $request->validate([
             'ids' => 'required|array',
         ]);
-        return Permission::whereIn('id', $data['ids'])->delete();
+        return User::whereIn('id', $data['ids'])->delete();
     }
 
     public function datatables(Request $request): JsonResponse
@@ -195,7 +217,7 @@ class PermissionController extends Controller
             return abort(403);
         }
 
-        $data = Permission::get();
+        $data = User::get();
         return DataTables::of($data)->make(true);
     }
 }

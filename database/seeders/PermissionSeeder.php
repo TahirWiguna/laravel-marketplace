@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class PermissionSeeder extends Seeder
 {
-    private array $modules = ['Permission', 'Role'];
+    private array $modules = ['Permission', 'Role', 'User'];
 
     private array $actions = ['List', 'View', 'Create', 'Update', 'Delete'];
 

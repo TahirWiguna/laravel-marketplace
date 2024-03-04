@@ -14,12 +14,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
-type Role = {
-    id: number;
-    name: string;
-    description: string;
-    created_at: Date;
-};
+import { Role } from './role';
 
 const ColumnTable: ColumnDef<Role>[] = [
     {

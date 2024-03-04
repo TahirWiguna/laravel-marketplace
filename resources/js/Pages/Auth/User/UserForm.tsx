@@ -5,8 +5,9 @@ import CardHeaderFormTemplate from '@/Components/Form/FormHeaderTemplate';
 import FormToolbarTemplate from '@/Components/Form/FormToolbarTemplate';
 import FormError from '@/Components/FormError';
 import { Button } from '@/Components/ui/button';
-import { Card, CardContent, CardHeader } from '@/Components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/Components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Checkbox } from '@/Components/ui/checkbox';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/Components/ui/form';
 import { Input } from '@/Components/ui/input';
 import { toast } from '@/Components/ui/use-toast';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
@@ -21,31 +22,38 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const MODULE = 'permission';
+import { Role } from '../Role/role';
+
+const MODULE = 'user';
 
 // SETUP FORM
 const FormSchema = z.object({
     id: z.number().nullable(),
-    name: z.string().min(1)
+    name: z.string().min(1, 'Name is required'),
+    roles: z.array(z.number()).min(1, 'Role is required'),
+    email: z.string().email().min(1, 'Email is required'),
+    password: z.string().min(8, 'Password minimum length is 8').regex(/[A-Z]/, 'Password must contain at least one uppercase letter').optional()
 });
 type FormValues = z.infer<typeof FormSchema>;
 const defaultValues: FormValues = {
     id: null,
-    name: ''
+    name: '',
+    email: '',
+    password: '',
+    roles: []
 };
 
 // COMPONENT
-interface Params extends PageProps {
-    type: 'create' | 'edit' | 'show';
+interface Props extends PageProps {
     permissions: PermissionType;
+    type: 'create' | 'edit' | 'show';
     form_data?: FormValues;
+    role_data: Role[];
 }
-
-const PermissionForm = ({ auth, type, permissions, form_data }: Params) => {
+const UserForm = ({ auth, type, permissions, form_data, role_data }: Props) => {
     if (form_data === undefined) {
         form_data = defaultValues;
     }
-
     const [loading, setLoading] = useState(false);
     const [formError, setFormError] = useState<FormValidation | null>(null);
 
@@ -57,7 +65,6 @@ const PermissionForm = ({ auth, type, permissions, form_data }: Params) => {
     async function onSubmit(data: FormValues, submitType: 'NORMAL' | 'MORE') {
         setLoading(true);
         setFormError(null);
-
         try {
             let res;
             if (type === 'create') {
@@ -96,6 +103,7 @@ const PermissionForm = ({ auth, type, permissions, form_data }: Params) => {
                 });
             }
         } catch (error) {
+            console.log(error);
             if (!axios.isAxiosError<FormValidation>(error) || !error.response?.data.errors) {
                 toast({
                     title: 'Whoops! Something went wrong.',
@@ -116,19 +124,87 @@ const PermissionForm = ({ auth, type, permissions, form_data }: Params) => {
 
     function generateForm() {
         return (
-            <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className="text-base">Name</FormLabel>
-                        <FormControl>
-                            <Input {...field} placeholder={`${MODULE} name`} readOnly={type === 'show'} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
+            <>
+                <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="text-base">Name</FormLabel>
+                            <FormControl>
+                                <Input {...field} placeholder={`${MODULE} name`} readOnly={type === 'show'} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="text-base">Email</FormLabel>
+                            <FormControl>
+                                <Input {...field} placeholder={`${MODULE} email`} readOnly={type === 'show'} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                {type === 'create' && (
+                    <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-base">Password</FormLabel>
+                                <FormControl>
+                                    <Input {...field} placeholder={`${MODULE} password`} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 )}
-            />
+                <FormField
+                    control={form.control}
+                    name="roles"
+                    render={() => (
+                        <FormItem>
+                            <div className="mb-4">
+                                <FormLabel className="text-base">Role</FormLabel>
+                                <FormDescription>Select the user roles. you can assign multiple role to an user</FormDescription>
+                            </div>
+                            {role_data.map((item) => (
+                                <FormField
+                                    key={item.id}
+                                    control={form.control}
+                                    name="roles"
+                                    render={({ field }) => {
+                                        return (
+                                            <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0">
+                                                <FormControl>
+                                                    <Checkbox
+                                                        disabled={type === 'show'}
+                                                        checked={field.value?.includes(item.id)}
+                                                        onCheckedChange={(checked) => {
+                                                            return checked
+                                                                ? field.onChange([...field.value, item.id])
+                                                                : field.onChange(field.value?.filter((value) => value !== item.id));
+                                                        }}
+                                                    />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">{item.name}</FormLabel>
+                                            </FormItem>
+                                        );
+                                    }}
+                                />
+                            ))}
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </>
         );
     }
 
@@ -176,4 +252,4 @@ const PermissionForm = ({ auth, type, permissions, form_data }: Params) => {
     );
 };
 
-export default PermissionForm;
+export default UserForm;

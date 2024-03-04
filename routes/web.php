@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\PermissionController;
 use App\Http\Controllers\Auth\RoleController;
+use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,10 @@ Route::middleware(['auth', 'verified'])
         Route::resource('permission', PermissionController::class);
         Route::post('permission/datatables', [PermissionController::class, 'datatables'])->name('permission.datatables');
         Route::delete('permissions', [PermissionController::class, 'destroys'])->name('permission.destroys');
+
+        Route::resource('user', UserController::class);
+        Route::post('user/datatables', [UserController::class, 'datatables'])->name('user.datatables');
+        Route::delete('users', [UserController::class, 'destroys'])->name('user.destroys');
     });
 
 Route::middleware('auth')->group(function () {
