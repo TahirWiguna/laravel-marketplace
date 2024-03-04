@@ -3,10 +3,10 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import { FormValidation } from '@/types/form-validation';
 import { DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons';
-import { ColumnDef, Header, PaginationState, SortingState, flexRender, getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
+import { ColumnDef, PaginationState, SortingState, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import axios, { AxiosError } from 'axios';
 import { produce } from 'immer';
-import { ArrowDownWideNarrow, CheckIcon, ChevronLeftIcon, ChevronRightIcon, ListOrdered, Loader2Icon, Trash2 } from 'lucide-react';
+import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, Loader2Icon, Trash2 } from 'lucide-react';
 import { ReactElement, Ref, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 import ConfirmationDeleteDialog from '../ConfirmationDeleteDialog';
@@ -99,7 +99,6 @@ export const DataTableServerOriginal = <TResponse, TColumnDef>(
         order: []
     };
 
-    const isFirstRender = useRef(true);
     const openDeleteBulkDialog = useState(false);
 
     const [loading, setLoading] = useState(false);

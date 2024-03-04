@@ -1,4 +1,3 @@
-import DeleteButtonAction from '@/Components/Action/DeleteButtonAction';
 import ButtonLoading from '@/Components/ButtonLoading';
 import Container from '@/Components/Container';
 import CardHeaderFormTemplate from '@/Components/Form/FormHeaderTemplate';
@@ -14,9 +13,9 @@ import { PageProps } from '@/types';
 import { FormValidation } from '@/types/form-validation';
 import { PermissionType } from '@/types/permission';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import axios from 'axios';
-import { CheckIcon, Pencil, Trash2 } from 'lucide-react';
+import { CheckIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
