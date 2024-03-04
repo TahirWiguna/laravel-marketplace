@@ -31,13 +31,21 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => ['required', 'max:255', 'min:1'],
             'email' => ['required', 'email'],
             'password' => ['min:8'],
             'roles' => ['required', 'array'],
             'roles.*' => ['numeric'],
         ];
+
+        $route = Request::route()->getName();
+        if ($route !== 'user.store') {
+            foreach ($rules as &$rule) {
+                array_unshift($rule, 'sometimes');
+            }
+        }
+        return $rules;
     }
 
     public function failedValidation(Validator $validator)
